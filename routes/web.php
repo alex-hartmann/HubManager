@@ -16,15 +16,19 @@ Route::post('/login', [UserController::class, 'login'])
 
 Route::middleware([CheckUserAccess::class])->group(function () {
     Route::post('/logout', [UserController::class, 'logout']);
-    
-});
-Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
+    Route::get('/habits', [App\Http\Controllers\HabitsController::class, 'index'])
+        ->name('habits.index');
+    Route::post('/habits', [App\Http\Controllers\HabitsController::class, 'store'])
+        ->name('habits.store');
+    Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
         ->name('dashboard');
+});
+
 Route::get('login', function () {
     return Inertia::render('Auth/Login');
 })->name('login');
 
 Route::get('/register', function () {
-        return Inertia::render('Auth/Register');
-    })->name('register');
-    Route::post('/register', [UserController::class, 'store'])->name('register.store');
+    return Inertia::render('Auth/Register');
+})->name('register');
+Route::post('/register', [UserController::class, 'store'])->name('register.store');
