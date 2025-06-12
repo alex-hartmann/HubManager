@@ -43,6 +43,21 @@ const deleteHabit = (habitId) => {
     }
 }
 
+const updateHabitProgress = (habit) => {
+    const formForUpdate = useForm({
+        completed: habit.is_completed_today,
+    });
+
+    formForUpdate.put(route('habits.update', habit.id), {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: () => {
+        },
+        onError: () => {
+        }
+    });
+}
+
 const showModal = ref(false);
 
 </script>
@@ -71,7 +86,8 @@ const showModal = ref(false);
                     <ul class="list-disc pl-5">
                         <li v-for="habit in $page.props.habits" :key="habit.id" class="mb-2">
                             <div class="flex items-center">
-                                <Checkbox v-model="habit.completed" class="mr-2" :checked="false" />
+                                <Checkbox v-model="habit.is_completed_today" class="mr-2"
+                                    @change="updateHabitProgress(habit)" :checked="habit.is_completed_today" />
                                 <span class="font-medium">{{ habit.title }}</span>
                                 <button @click="deleteHabit(habit.id)"
                                     class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">

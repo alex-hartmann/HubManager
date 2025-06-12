@@ -12,16 +12,23 @@ class HabitsController extends Controller
 {
     public function index()
     {
-        $habitsToday = $this->habitsToday();
-        return inertia('Habits', [
-            'habits' => $habitsToday,
-        ]);
-    }
 
-    public function habitsToday()
-    {
-        $habits = Habit::where('user_id', auth()->id())->get();
-        return $habits;
+        $today = now()->toDateString();
+        $userId = auth()->id();
+        $habitsWithProgress = Habit::where('user_id', $userId)
+            ->with(['progressToday' => function ($query) use ($today) {
+                $query->whereDate('date', $today);
+            }])
+            ->get()
+            ->map(function ($habit) {
+                $habit->is_completed_today = $habit->progressToday->isNotEmpty() ? (bool) $habit->progressToday->first()->completed : false;
+                unset($habit->progressToday);
+                return $habit;
+            });
+
+        return inertia('Habits', [
+            'habits' => $habitsWithProgress,
+        ]);
     }
 
     public function habitsProgress()
@@ -56,6 +63,28 @@ class HabitsController extends Controller
             'description' => $request['description'],
         ]);
         return redirect()->route('habits.index')->with('success', 'Habit created successfully.');
+    }
+
+    public function updateHabit(Request $request, Habit $habit)
+    {
+        $date = now()->toDateString();
+        $userId = auth()->id();
+
+        if ($habit->user_id !== $userId) {
+            return redirect()->route('habits.index')->with('error', 'Unauthorized action.');
+        }
+
+        HabitProgress::updateOrCreate(
+            [
+                'habit_id' => $habit->id,
+                'user_id' => $userId,
+                'date' => $date,
+            ],
+            [
+                'completed' => $request->boolean('completed'),
+            ]
+        );
+        return redirect()->route('habits.index')->with('success', 'Habit progress updated successfully.');
     }
 
     public function destroy($id)
