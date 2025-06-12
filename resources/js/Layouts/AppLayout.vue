@@ -1,9 +1,28 @@
 <script setup>
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
+import { defineProps, watch } from 'vue';
+import { useToast } from 'vue-toastification';
 
 // Define as propriedades que este componente pode receber
 defineProps({
     title: String, // Propriedade para o título da página
+});
+
+const page = usePage();
+const toast = useToast();
+
+watch(() => page.props.flash.success, (message) => {
+    if (message) {
+        toast.success(message);
+        page.props.flash.success = null;
+    }
+});
+
+watch(() => page.props.flash.error, (message) => {
+    if (message) {
+        toast.error(message);
+        page.props.flash.error = null;
+    }
 });
 
 const logout = () => {

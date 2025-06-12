@@ -12,7 +12,32 @@ class HabitsController extends Controller
 {
     public function index()
     {
-        return inertia('Habits');
+        $habitsToday = $this->habitsToday();
+        return inertia('Habits', [
+            'habits' => $habitsToday,
+        ]);
+    }
+
+    public function habitsToday()
+    {
+        $habits = Habit::where('user_id', auth()->id())->get();
+        return $habits;
+    }
+
+    public function habitsProgress()
+    {
+        $habits = Habit::where('user_id', auth()->id())->get();
+        $habitsProgress = [];
+        foreach ($habits as $habit) {
+            $progress = HabitProgress::where('habit_id', $habit->id)
+                ->whereDate('created_at', today())
+                ->first();
+            $habitsProgress[] = [
+                'habit' => $habit,
+                'progress' => $progress ? true : false,
+            ];
+        }
+        return $habitsProgress;
     }
 
     public function store(Request $request)
@@ -31,5 +56,16 @@ class HabitsController extends Controller
             'description' => $request['description'],
         ]);
         return redirect()->route('habits.index')->with('success', 'Habit created successfully.');
+    }
+
+    public function destroy($id)
+    {
+        $habit = Habit::findOrFail($id);
+        if (!$habit) {
+            return redirect()->route('habits.index')->with('error', 'Habit not found.');
+        }
+
+        $habit->delete();
+        return redirect()->route('habits.index')->with('success', 'Habit deleted successfully.');
     }
 }

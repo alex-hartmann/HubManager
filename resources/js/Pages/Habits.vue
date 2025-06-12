@@ -9,29 +9,12 @@ import Checkbox from '@/Components/Checkbox.vue';
 import { Link } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
 import Modal from '@/Components/Modal.vue';
-import { useToast } from 'vue-toastification';
 
 const form = useForm({
     title: '',
     description: '',
 });
 
-const page = usePage();
-const toast = useToast();
-
-watch(() => page.props.flash.success, (message) => {
-    if (message) {
-        toast.success(message);
-        page.props.flash.success = null;
-    }
-});
-
-watch(() => page.props.flash.error, (message) => {
-    if (message) {
-        toast.error(message);
-        page.props.flash.error = null;
-    }
-});
 
 const submitForm = () => {
     form.post(route('habits.store'), {
@@ -42,11 +25,22 @@ const submitForm = () => {
         onError: () => {
             toast.error('Failed to create habit. Please check the form for errors.');
             console.log("Erros de validação:", form.errors);
-            page.props.flash.error = null;
-
         }
 
     })
+}
+
+const deleteHabit = (habitId) => {
+    if (confirm('Are you sure you want to delete this habit?')) {
+        form.delete(route('habits.destroy', habitId), {
+            onSuccess: () => {
+
+            },
+            onError: () => {
+
+            }
+        });
+    }
 }
 
 const showModal = ref(false);
@@ -69,8 +63,36 @@ const showModal = ref(false);
                 </div>
             </div>
         </div>
-    </AppLayout>
 
+        <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h4 class="text-lg font-semibold mb-4">Your Habits</h4>
+                    <ul class="list-disc pl-5">
+                        <li v-for="habit in $page.props.habits" :key="habit.id" class="mb-2">
+                            <div class="flex items-center">
+                                <Checkbox v-model="habit.completed" class="mr-2" :checked="false" />
+                                <span class="font-medium">{{ habit.title }}</span>
+                                <button @click="deleteHabit(habit.id)"
+                                    class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                                    x
+                                </button>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h4 class="text-lg font-semibold mb-4">Progress History</h4>
+                    <p class="text-gray-600">Track your progress over time.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h4 class="text-lg font-semibold mb-4">Suggestions</h4>
+                    <p class="text-gray-600">Get suggestions for new habits to adopt.</p>
+                </div>
+            </div>
+        </div>
+
+    </AppLayout>
 
     <Modal :show="showModal" @close="showModal = false">
         <template #header>
