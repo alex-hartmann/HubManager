@@ -1,8 +1,8 @@
 <script setup>
-import { Head, usePage } from '@inertiajs/vue3';
+import { Head, usePage, Link } from '@inertiajs/vue3';
 import { defineProps, watch } from 'vue';
 import { useToast } from 'vue-toastification';
-
+import axios from 'axios';
 // Define as propriedades que este componente pode receber
 defineProps({
     title: String, // Propriedade para o título da página
@@ -49,8 +49,8 @@ const logout = () => {
                     </div>
 
                     <div class="flex items-center space-x-4">
-                        <a href="#" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
-                        <a href="/habits" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Habits</a>
+                        <Link :href="route('dashboard')" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Dashboard</Link>
+                        <Link :href="route('habits.index')" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Habits</Link>
                         <form method="POST" @submit.prevent="logout">
                             <button type="submit" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Sair</button>
                         </form>

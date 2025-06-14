@@ -1,5 +1,6 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue'; // O layout principal do Breeze
+import { watch } from 'vue';
 defineProps({
     user: Object, // Propriedade para o usuário autenticado
 });
@@ -30,17 +31,29 @@ defineProps({
                         <div class="p-6 bg-white rounded-lg shadow-sm">
                             <h3 class="text-xl font-semibold text-gray-900 mb-2">Usuários Online</h3>
                             <p class="text-gray-700">Visualize seus usuários ativos.</p>
-                            <a href="#" class="mt-4 inline-flex items-center text-indigo-500 hover:text-indigo-600 font-medium">
+                            <a href="#"
+                                class="mt-4 inline-flex items-center text-indigo-500 hover:text-indigo-600 font-medium">
                                 Ver mais
-                                <svg class="ms-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                <svg class="ms-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7">
+                                    </path>
+                                </svg>
                             </a>
                         </div>
                         <div class="p-6 bg-white rounded-lg shadow-sm">
                             <h3 class="text-xl font-semibold text-gray-900 mb-2">Relatórios</h3>
                             <p class="text-gray-700">Acesse relatórios e estatísticas.</p>
-                            <a href="#" class="mt-4 inline-flex items-center text-indigo-500 hover:text-indigo-600 font-medium">
+                            <a href="#"
+                                class="mt-4 inline-flex items-center text-indigo-500 hover:text-indigo-600 font-medium">
                                 Gerar relatório
-                                <svg class="ms-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                <svg class="ms-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7">
+                                    </path>
+                                </svg>
                             </a>
                         </div>
                     </div>

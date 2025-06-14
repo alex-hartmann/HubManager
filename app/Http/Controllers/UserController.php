@@ -16,7 +16,7 @@ class UserController extends Controller
 
         if (Auth::attempt($credentials)) {
             return redirect()->route('dashboard')
-                ->with('success', 'Login successful. Welcome back!');
+                ->with('status', 'Login successful. Welcome back!');
         }
 
         return back()->withErrors([
@@ -50,6 +50,6 @@ class UserController extends Controller
     {
         Auth::logout();
         return redirect(route('login'))
-            ->with('success', 'You have been logged out successfully.');
+            ->with('status', 'You have been logged out successfully.');
     }
 }

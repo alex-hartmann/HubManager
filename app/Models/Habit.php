@@ -21,9 +21,15 @@ class Habit extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function progressToday(){
+    public function progressToday()
+    {
         return $this->hasMany(HabitProgress::class)
             ->whereDate('date', Carbon::now()->toDateString());
+    }
+    public function progressYesterday()
+    {
+        return $this->hasMany(HabitProgress::class)
+            ->whereDate('date', Carbon::yesterday()->toDateString());
     }
 
     public function progress()

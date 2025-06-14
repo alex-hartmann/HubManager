@@ -6,6 +6,27 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Checkbox from '@/Components/Checkbox.vue';
 import { Link } from '@inertiajs/vue3';
+import { usePage } from '@inertiajs/vue3';
+import { watch } from 'vue';
+import { useToast } from 'vue-toastification'; 
+
+const toast = useToast();
+const page = usePage();
+
+watch(() => page.props.flash.status, (message) => {
+    if (message) {
+        toast.success(message);
+        page.props.flash.status = null;
+    }
+});
+
+watch(() => page.props.flash.error, (message) => {
+    if (message) {
+        toast.error(message);
+        page.props.flash.error = null;
+    }
+});
+
 
 // Define o formulário com os campos que serão enviados
 const form = useForm({
@@ -17,7 +38,11 @@ const form = useForm({
 const submit = () => {
 
     form.post(route('login'), { // Assume que você tem uma rota nomeada 'login'
-        onFinish: () => form.reset('password'), // Limpa o campo de senha após a submissão
+        onSuccess: () => {
+
+        }, onError: () => {
+
+        }, onFinish: () => form.reset('password'), // Limpa o campo de senha após a submissão
     });
 };
 </script>
@@ -52,10 +77,6 @@ const submit = () => {
                 </div>
 
                 <div class="flex items-center justify-end mt-4">
-                    <Link v-if="canResetPassword" :href="route('password.request')"
-                        class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Esqueceu sua senha?
-                    </Link>
 
                     <PrimaryButton class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                         Log in
