@@ -22,10 +22,13 @@ Route::middleware([CheckUserAccess::class])->group(function () {
         ->name('habits.store');
     Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
         ->name('dashboard');
-        Route::put('/habits/{habit}/progress', [App\Http\Controllers\HabitsController::class, 'updateHabit'])
+    Route::put('/habits/{habit}/progress', [App\Http\Controllers\HabitsController::class, 'updateHabit'])
         ->name('habits.update');
     Route::delete('/habits/destroy/{id}', [App\Http\Controllers\HabitsController::class, 'destroy'])
         ->name('habits.destroy');
+    Route::get('/tasks', [App\Http\Controllers\TaskController::class, 'index'])->name('tasks.index');
+    Route::post('/tasks', [App\Http\Controllers\TaskController::class, 'store'])->name('tasks.store');
+
 });
 
 

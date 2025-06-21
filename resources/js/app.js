@@ -8,6 +8,12 @@ import { ZiggyVue } from "../../vendor/tightenco/ziggy";
 import Toast, { POSITION } from "vue-toastification";
 import "vue-toastification/dist/index.css";
 
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faPenToSquare, faTrashCan, faCheck } from "@fortawesome/free-solid-svg-icons";
+
+library.add(faPenToSquare, faTrashCan, faCheck);
+
 const toastOptions = {
     position: POSITION.TOP_RIGHT, // Ex: "top-right", "bottom-left", etc.
     timeout: 3000, // Duração do toast em ms
@@ -37,7 +43,9 @@ createInertiaApp({
             .use(plugin)
             .use(ZiggyVue)
             .use(Toast, toastOptions)
+            .component("font-awesome-icon", FontAwesomeIcon)
             .mount(el);
+        
     },
     progress: {
         color: "#4B5563",

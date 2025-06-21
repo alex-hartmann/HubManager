@@ -81,17 +81,24 @@ const showModal = ref(false);
 
     <AppLayout title="Habits" :breadcrumbs="[{ name: 'Habits' }]">
         <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="m-1">
-                    <h3 class="text-lg font-semibold mb-2">Habit Tracker</h3>
-                    <p class="text-gray-600">Build discipline and track your habits effectively.</p>
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-[2rem] font-black text-[#6366f1] tracking-tight leading-[1.1]">Habit Tracker
+                    </h2>
+                    <p class="text-[#78716c] text-lg font-medium mt-1">Build discipline and track your habits
+                        effectively.</p>
                 </div>
-                <div class="flex items-center justify-center">
-                    <button @click="showModal = true"
-                        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                        Create Habit
-                    </button>
-                </div>
+                <button @click="showModal = true"
+                    class="bg-[#6366f1] text-white rounded-lg px-6 py-2 font-semibold flex items-center gap-2 shadow-lg hover:bg-[#4f46e5] transition">
+                    <i data-fa-i2svg=""><svg class="svg-inline--fa fa-plus" aria-hidden="true" focusable="false"
+                            data-prefix="fas" data-icon="plus" role="img" xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 448 512" data-fa-i2svg="">
+                            <path fill="currentColor"
+                                d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z">
+                            </path>
+                        </svg></i>
+                    New Habit
+                </button>
             </div>
         </div>
 
@@ -147,17 +154,42 @@ const showModal = ref(false);
                 </div>
 
                 <div class="bg-white p-6 rounded-lg shadow">
-                    <h4 class="text-lg font-semibold mb-4">Your Habits</h4>
-                    <ul class="list-disc pl-5">
-                        <li v-for="habit in $page.props.habits" :key="habit.id" class="mb-2">
-                            <div class="flex items-center">
+                    <h4 class="text-lg font-semibold mb-4">Progresso dos hábitos!</h4>
+                    <ul id="active-habits-list" class="space-y-5">
+                        <li v-for="habit in $page.props.habits" :key="habit.id" id="habit-card-1"
+                            class="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-100 transition">
+                            <div
+                                class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="text-blue-700" data-fa-i2svg=""><svg class="svg-inline--fa fa-book-open"
+                                        aria-hidden="true" focusable="false" data-prefix="fas" data-icon="book-open"
+                                        role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"
+                                        data-fa-i2svg="">
+                                        <path fill="currentColor"
+                                            d="M249.6 471.5c10.8 3.8 22.4-4.1 22.4-15.5V78.6c0-4.2-1.6-8.4-5-11C247.4 52 202.4 32 144 32C93.5 32 46.3 45.3 18.1 56.1C6.8 60.5 0 71.7 0 83.8V454.1c0 11.9 12.8 20.2 24.1 16.5C55.6 460.1 105.5 448 144 448c33.9 0 79 14 105.6 23.5zm76.8 0C353 462 398.1 448 432 448c38.5 0 88.4 12.1 119.9 22.6c11.3 3.8 24.1-4.6 24.1-16.5V83.8c0-12.1-6.8-23.3-18.1-27.6C529.7 45.3 482.5 32 432 32c-58.4 0-103.4 20-123 35.6c-3.3 2.6-5 6.8-5 11V456c0 11.4 11.7 19.3 22.4 15.5z">
+                                        </path>
+                                    </svg></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-md font-medium text-gray-900">{{ habit.title }}</span>
+                                    <span class="px-2 py-0.5 text-xs rounded bg-blue-50 text-blue-700 ">Meta ->{{
+                                        habit.goal }}</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-gray-500 ">
+                                    <i class="text-orange-500" data-fa-i2svg=""><svg class="svg-inline--fa fa-fire"
+                                            aria-hidden="true" focusable="false" data-prefix="fas" data-icon="fire"
+                                            role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"
+                                            data-fa-i2svg="">
+                                        </svg></i>
+                                    <span>Streak: 🔥<b class="text-gray-800">{{ habit.streak_today }}</b> days</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-end">
                                 <Checkbox v-model="habit.is_completed_today" class="mr-2"
                                     @change="updateHabitProgress(habit)" :checked="habit.is_completed_today" />
-                                <span class="font-medium">{{ habit.title }} - {{ habit.streak_today }}</span>
-
                                 <button @click="deleteHabit(habit.id)"
-                                    class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
-                                    x
+                                    class="text-red-600 hover:text-red-800 transition pr-1">
+                                    ⛔
                                 </button>
                             </div>
                         </li>
@@ -201,9 +233,17 @@ const showModal = ref(false);
                 </div>
 
                 <div class="flex justify-end">
-                    <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                    <button type="submit"
+                        class="bg-[#6366f1] text-white rounded-lg px-6 py-2 font-semibold flex items-center gap-2 shadow-lg hover:bg-[#4f46e5] transition">
+                        <i data-fa-i2svg=""><svg class="svg-inline--fa fa-plus" aria-hidden="true" focusable="false"
+                                data-prefix="fas" data-icon="plus" role="img" xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 448 512" data-fa-i2svg="">
+                                <path fill="currentColor"
+                                    d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z">
+                                </path>
+                            </svg></i>
                         Save Habit
-                    </PrimaryButton>
+                    </button>
                 </div>
             </form>
         </div>
