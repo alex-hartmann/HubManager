@@ -28,7 +28,10 @@ Route::middleware([CheckUserAccess::class])->group(function () {
         ->name('habits.destroy');
     Route::get('/tasks', [App\Http\Controllers\TaskController::class, 'index'])->name('tasks.index');
     Route::post('/tasks', [App\Http\Controllers\TaskController::class, 'store'])->name('tasks.store');
-
+    Route::put('/tasks/{task}', [App\Http\Controllers\TaskController::class, 'update'])
+        ->name('tasks.update');
+    Route::delete('/tasks/destroy/{task}', [App\Http\Controllers\TaskController::class, 'destroy'])
+        ->name('tasks.destroy');
 });
 
 

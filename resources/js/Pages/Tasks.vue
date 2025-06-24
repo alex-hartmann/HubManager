@@ -1,35 +1,40 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { useForm } from '@inertiajs/vue3';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import TextInput from '@/Components/TextInput.vue';
-import Checkbox from '@/Components/Checkbox.vue';
-import { computed, ref, setTransitionHooks, watch } from 'vue';
-import Modal from '@/Components/Modal.vue';
+import { router } from '@inertiajs/vue3';
+import TaskModal from '@/Components/TaskModal.vue';
+import { ref} from 'vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
-const showModal = ref(false);
+const showTaskModal = ref(false);
+const taskBeingEdited = ref(null);
 
-const form = useForm({
-    title: '',
-    description: '',
-    notes: '',
-    priority: 'medium',
-    due_date: '',
-});
-
-const submitForm = () => {
-    form.post(route('tasks.store'), {
-        onSuccess: () => {
-            form.reset();
-            showModal.value = false;
-        },
-        onError: () => {
-            console.error('Error submitting form:', form.errors);
-        },
-    });
+const showCreateModal = () => {
+    taskBeingEdited.value = null;
+    showTaskModal.value = true;
 };
+
+const editTask = (task) => {
+    showTaskModal.value = true;
+    taskBeingEdited.value = task;
+};
+
+const closeTaskModal = () => {
+    showTaskModal.value = false;
+    taskBeingEdited.value = null;
+};
+
+const deleteTask = ($taskId) => {
+    if (confirm('Are you sure you want to delete this task?')) {
+        router.delete(route('tasks.destroy', $taskId), {
+            onSuccess: () => {
+                console.log('Task deleted successfully');
+            },
+            onError: () => {
+                console.error('Error deleting task:', form.errors);
+            },
+        });
+    }
+}
 
 </script>
 <template>
@@ -45,7 +50,7 @@ const submitForm = () => {
                         <p class="text-[#78716c] text-lg font-medium mt-1">Organize, track, and celebrate your daily
                             achievements.</p>
                     </div>
-                    <button @click="showModal = true"
+                    <button @click="showCreateModal"
                         class="bg-[#6366f1] text-white rounded-lg px-6 py-2 font-semibold flex items-center gap-2 shadow-lg hover:bg-[#4f46e5] transition">
                         <i data-fa-i2svg=""><svg class="svg-inline--fa fa-plus" aria-hidden="true" focusable="false"
                                 data-prefix="fas" data-icon="plus" role="img" xmlns="http://www.w3.org/2000/svg"
@@ -76,7 +81,9 @@ const submitForm = () => {
                                         </svg></i>
                                     <span class="font-bold text-[#18181b] text-lg">Today's Tasks</span>
                                 </div>
-                                <span class="text-xs bg-[#e0e7ff] text-[#6366f1] px-3 py-1 rounded-full font-semibold">{{ $page.props.total}}
+                                <span
+                                    class="text-xs bg-[#e0e7ff] text-[#6366f1] px-3 py-1 rounded-full font-semibold">{{
+                                    $page.props.total}}
                                     Pending</span>
                             </div>
                             <ul class="space-y-4">
@@ -87,22 +94,23 @@ const submitForm = () => {
                                             <div class="flex items-center gap-4">
                                                 <button
                                                     class="h-6 w-6 rounded-full border-2 flex items-center justify-center hover:bg-[#000]/20 transition"
-                                                    :style="{borderColor: '#' + task.color, color: '#' + task.color}">
-                                                <font-awesome-icon icon="check" /></button>
+                                                    :style="{ borderColor: '#' + task.color, color: '#' + task.color }">
+                                                    <font-awesome-icon icon="check" /></button>
                                                 <span class="font-medium text-[#18181b]">{{ task.title }}</span>
                                                 <span class="ml-2 text-xs bg-[#f59e42]/20 rounded px-2 py-0.5 font-bold"
-                                                    :style="{color: '#' + task.color}">{{
-                                                    task.priority }}</span>
+                                                    :style="{ color: '#' + task.color }">{{
+                                                        task.priority }}</span>
                                             </div>
                                             <div class="flex items-center gap-2">
-                                                <button class="rounded-md p-2 hover:bg-[#f6f9fc]">
-                                                        <font-awesome-icon icon="pen-to-square"
-                                                            class="text-[#78716c]"/>
-                                                    </button>
-                                                <button class="rounded-md p-2 hover:bg-[#f87171]/20">
-                                                        <font-awesome-icon icon="trash-can"
-                                                            class="text-[#f87171]"/>
-                                                   </button>
+                                                <button @click="editTask(task)"
+                                                    class="rounded-md p-2 hover:bg-[#f6f9fc]">
+                                                    <font-awesome-icon icon="pen-to-square" class="text-[#78716c]" />
+                                                </button>
+                                                <form @submit.prevent="deleteTask(task.id)"><button
+                                                        class="rounded-md p-2 hover:bg-[#f87171]/20">
+                                                        <font-awesome-icon icon="trash-can" class="text-[#f87171]" />
+                                                    </button></form>
+
                                             </div>
                                         </div>
 
@@ -111,8 +119,8 @@ const submitForm = () => {
                                 </li>
                             </ul>
 
-       
-                            
+
+
                         </div>
                         <!-- Completed Tasks by Day -->
                         <div id="completed-tasks-day-block"
@@ -227,69 +235,5 @@ const submitForm = () => {
             </section>
         </section>
     </AppLayout>
-
-
-    <Modal :show="showModal" @close="showModal = false">
-        <template #header>
-            <h2 class="text-lg font-semibold">Create Habit</h2>
-        </template>
-        <div class="p-6 bg-opacity-20">
-            <p>Cadastre seu novo hábito</p>
-            <form @submit.prevent="submitForm" class="mt-4">
-                <div class="mb-4">
-                    <InputLabel for="title" value="Title" />
-                    <TextInput id="title" type="text" class="mt-1 block w-full" v-model="form.title" required
-                        autofocus />
-                    <InputError :message="form.errors.title" class="mt-2" />
-                </div>
-                <div class="mb-4">
-                    <InputLabel for="description" value="Description" />
-                    <textarea id="description"
-                        class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
-                        v-model="form.description" rows="3" placeholder="Describe your task" required></textarea>
-                    <InputError :message="form.errors.description" class="mt-2" />
-                </div>
-                <div class="mb-4">
-                    <InputLabel for="notes" value="Notes" />
-                    <textarea id="notes"
-                        class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
-                        v-model="form.notes" rows="3" placeholder="Additional notes (optional)"></textarea>
-                    <InputError :message="form.errors.notes" class="mt-2" />
-                </div>
-                <div class="gap-4 flex">
-                    <div class="mb-4 flex-1">
-                        <InputLabel for="priority" value="Priority" />
-                        <select id="priority"
-                            class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
-                            v-model="form.priority" required>
-                            <option value="low">Low</option>
-                            <option value="medium">Medium</option>
-                            <option value="high">High</option>
-                        </select>
-                        <InputError :message="form.errors.frequency" class="mt-2" />
-                    </div>
-                    <div class="mb-4 flex-1">
-                        <InputLabel for="due_date" value="Due Date" />
-                        <TextInput id="due_date" type="date" class="mt-1 block w-full" v-model="form.due_date"
-                            placeholder="dd/mm/yy" required />
-                        <InputError :message="form.errors.due_date" class="mt-2" />
-                    </div>
-                </div>
-
-                <div class="flex justify-end">
-                    <button type="submit"
-                        class="bg-[#6366f1] text-white rounded-lg px-6 py-2 font-semibold flex items-center gap-2 shadow-lg hover:bg-[#4f46e5] transition">
-                        <i data-fa-i2svg=""><svg class="svg-inline--fa fa-plus" aria-hidden="true" focusable="false"
-                                data-prefix="fas" data-icon="plus" role="img" xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 448 512" data-fa-i2svg="">
-                                <path fill="currentColor"
-                                    d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z">
-                                </path>
-                            </svg></i>
-                        Save Task
-                    </button>
-                </div>
-            </form>
-        </div>
-    </Modal>
+    <TaskModal :show="showTaskModal" :task-data="taskBeingEdited" @close="closeTaskModal" />
 </template>
