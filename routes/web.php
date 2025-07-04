@@ -30,6 +30,8 @@ Route::middleware([CheckUserAccess::class])->group(function () {
     Route::post('/tasks', [App\Http\Controllers\TaskController::class, 'store'])->name('tasks.store');
     Route::put('/tasks/{task}', [App\Http\Controllers\TaskController::class, 'update'])
         ->name('tasks.update');
+    Route::put('/tasks/{task}/status', [App\Http\Controllers\TaskController::class, 'updateStatus'])
+        ->name('tasks.updateStatus');
     Route::delete('/tasks/destroy/{task}', [App\Http\Controllers\TaskController::class, 'destroy'])
         ->name('tasks.destroy');
 });

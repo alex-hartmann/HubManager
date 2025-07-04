@@ -2,8 +2,9 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { router } from '@inertiajs/vue3';
 import TaskModal from '@/Components/TaskModal.vue';
-import { ref} from 'vue';
+import { ref } from 'vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import Checkbox from '@/Components/Checkbox.vue';
 
 const showTaskModal = ref(false);
 const taskBeingEdited = ref(null);
@@ -21,6 +22,20 @@ const editTask = (task) => {
 const closeTaskModal = () => {
     showTaskModal.value = false;
     taskBeingEdited.value = null;
+};
+
+const updateTaskStatus = ($taskId, $status) => {
+    const newStatus = $status ? 'completed' : 'pending';
+    router.put(route('tasks.updateStatus', $taskId), { status: newStatus }, {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: () => {
+            console.log('Task status updated successfully', newStatus);
+        },
+        onError: () => {
+            console.error('Error updating task status:', form.errors);
+        },
+    });
 };
 
 const deleteTask = ($taskId) => {
@@ -79,11 +94,11 @@ const deleteTask = ($taskId) => {
                                                 d="M32 0C14.3 0 0 14.3 0 32S14.3 64 32 64V75c0 42.4 16.9 83.1 46.9 113.1L146.7 256 78.9 323.9C48.9 353.9 32 394.6 32 437v11c-17.7 0-32 14.3-32 32s14.3 32 32 32H64 320h32c17.7 0 32-14.3 32-32s-14.3-32-32-32V437c0-42.4-16.9-83.1-46.9-113.1L237.3 256l67.9-67.9c30-30 46.9-70.7 46.9-113.1V64c17.7 0 32-14.3 32-32s-14.3-32-32-32H320 64 32zM96 75V64H288V75c0 19-5.6 37.4-16 53H112c-10.3-15.6-16-34-16-53zm16 309c3.5-5.3 7.6-10.3 12.1-14.9L192 301.3l67.9 67.9c4.6 4.6 8.6 9.6 12.1 14.9H112z">
                                             </path>
                                         </svg></i>
-                                    <span class="font-bold text-[#18181b] text-lg">Today's Tasks</span>
+                                    <span class="font-bold text-[#18181b] text-lg">Pendings Tasks</span>
                                 </div>
                                 <span
                                     class="text-xs bg-[#e0e7ff] text-[#6366f1] px-3 py-1 rounded-full font-semibold">{{
-                                    $page.props.total}}
+                                        $page.props.total }}
                                     Pending</span>
                             </div>
                             <ul class="space-y-4">
@@ -92,11 +107,16 @@ const deleteTask = ($taskId) => {
                                     <div class="flex flex-col gap-4">
                                         <div class="flex items-center gap-4 justify-between">
                                             <div class="flex items-center gap-4">
-                                                <button
-                                                    class="h-6 w-6 rounded-full border-2 flex items-center justify-center hover:bg-[#000]/20 transition"
-                                                    :style="{ borderColor: '#' + task.color, color: '#' + task.color }">
-                                                    <font-awesome-icon icon="check" /></button>
-                                                <span class="font-medium text-[#18181b]">{{ task.title }}</span>
+
+                                                <Checkbox
+                                                    :style="{ borderColor: '#' + task.color, color: '#' + task.color }"
+                                                    class="focus:ring-gray-400 focus:ring-opacity-50" 
+                                                    v-model="task.is_completed" :checked="task.is_completed"
+                                                    @change="updateTaskStatus(task.id, task.is_completed)" />
+                                        
+                                                <span v-if="task.status" class="font-medium text-[#18181b]"
+                                                    :class="{ 'line-through': task.status === 'completed' }">{{ task.title
+                                                    }}</span>
                                                 <span class="ml-2 text-xs bg-[#f59e42]/20 rounded px-2 py-0.5 font-bold"
                                                     :style="{ color: '#' + task.color }">{{
                                                         task.priority }}</span>
@@ -127,13 +147,33 @@ const deleteTask = ($taskId) => {
                             class="bg-[#f1f5f9] rounded-xl p-6 flex flex-col gap-3 shadow-sm">
                             <div class="flex items-center gap-2 mb-2">
 
-                                ✅
+                                <i class="text-[#10b981]" data-fa-i2svg=""><svg class="svg-inline--fa fa-calendar-check"
+                                        aria-hidden="true" focusable="false" data-prefix="fas"
+                                        data-icon="calendar-check" role="img" xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 448 512" data-fa-i2svg="">
+                                        <path fill="currentColor"
+                                            d="M128 0c17.7 0 32 14.3 32 32V64H288V32c0-17.7 14.3-32 32-32s32 14.3 32 32V64h48c26.5 0 48 21.5 48 48v48H0V112C0 85.5 21.5 64 48 64H96V32c0-17.7 14.3-32 32-32zM0 192H448V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V192zM329 305c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-95 95-47-47c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l64 64c9.4 9.4 24.6 9.4 33.9 0L329 305z">
+                                        </path>
+                                    </svg></i>
+
+
                                 <span class="font-bold text-[#18181b] text-lg">Completed This Week</span>
                             </div>
                             <div class="flex flex-col gap-2 pl-6 text-[#78716c]">
-                                <div>Monday: <span class="text-[#10b981]">✅</span> Study Laravel</div>
-                                <div>Tuesday: <span class="text-[#10b981]">✅</span> Read finance blog</div>
-                                <div>Wednesday: <span class="text-[#10b981]">✅</span> Walk 30 min</div>
+                                <ul class="space-y-4">
+                                    <li v-for="task in $page.props.tasksCompletedWeek" :key="task.id">
+                                        <div>{{task.completed_day}}: <span class="text-[#10b981]"><i data-fa-i2svg=""><svg
+                                                class="svg-inline--fa fa-circle-check" aria-hidden="true"
+                                                focusable="false" data-prefix="fas" data-icon="circle-check" role="img"
+                                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
+                                                data-fa-i2svg="">
+                                                <path fill="currentColor"
+                                                    d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z">
+                                                </path>
+                                            </svg></i></span> {{task.title}}</div>
+                                    </li>
+                                </ul>
+                                
                             </div>
                         </div>
                     </div>

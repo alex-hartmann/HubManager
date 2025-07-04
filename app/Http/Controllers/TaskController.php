@@ -6,30 +6,50 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Task;
 use App\Models\User;
+use Carbon\Carbon;
 
 class TaskController extends Controller
 {
     public function index()
     {
         $task = Task::where('user_id', auth()->id())
-            ->orderBy('created_at', 'desc')
+            ->where('status', 'pending')
+            ->orderBy('due_date', 'asc')
             ->get()
             ->map(function ($task) {
-                if ($task->priority == 'low') {
-                    $task->color = '10b981'; // Light green for low priority
-                } elseif ($task->priority == 'medium') {
-                    $task->color = '6366f1';
-                } elseif ($task->priority == 'high') {
-                    $task->color = 'f59e42';
-                }
+                $task->is_completed = $task->status === 'pending' ? false : true;
+                $priorityColors = [
+                    'low'    => '10b981',
+                    'medium' => '6366f1',
+                    'high'   => 'f59e42',
+                ];
+                $task->color = $priorityColors[$task->priority] ?? '000000';
                 return $task;
             });
         $total = $task->count();
+        $tasksCompletedWeek = $this->tasksCompletedAtThisWeek();
 
         return inertia('Tasks', [
             'tasks' => $task,
             'total' => $total,
+            'tasksCompletedWeek' => $tasksCompletedWeek,
         ]);
+    }
+
+    public function tasksCompletedAtThisWeek()
+    {
+        $tasksCompletedWeek = Task::where('user_id', auth()->id())
+            ->where('status', 'completed')
+            ->whereBetween('updated_at', [now()->startOfWeek(), now()->endOfWeek()])
+            ->get()
+            ->map(function ($task) {
+                $task->completed_day = $task->updated_at->dayName;
+                return $task;
+            });
+
+
+
+        return $tasksCompletedWeek;
     }
 
     public function store(Request $request)
@@ -78,6 +98,22 @@ class TaskController extends Controller
 
         return redirect()->route('tasks.index')
             ->with('success', 'Task updated successfully.');
+    }
+
+    public function updateStatus(Request $request, Task $task)
+    {
+        $task = Task::findOrFail($task->id);
+
+        if (!$task) {
+            return redirect()->route('tasks.index')
+                ->with('error', 'Task not found.');
+        }
+
+        $task->status = $request['status'] === 'completed' ? 'completed' : 'pending';
+        $task->save();
+
+        return redirect()->back()
+            ->with('success', 'Task status updated successfully.');
     }
 
     public function destroy(Task $task)
