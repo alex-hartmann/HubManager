@@ -10,9 +10,9 @@ import "vue-toastification/dist/index.css";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { faPenToSquare, faTrashCan, faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faPenToSquare, faTrashCan, faCheck, faRotateLeft } from "@fortawesome/free-solid-svg-icons";
 
-library.add(faPenToSquare, faTrashCan, faCheck);
+library.add(faPenToSquare, faTrashCan, faCheck, faRotateLeft);
 
 const toastOptions = {
     position: POSITION.TOP_RIGHT, // Ex: "top-right", "bottom-left", etc.

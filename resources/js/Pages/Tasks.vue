@@ -6,6 +6,7 @@ import { ref } from 'vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import Checkbox from '@/Components/Checkbox.vue';
 
+
 const showTaskModal = ref(false);
 const taskBeingEdited = ref(null);
 
@@ -38,6 +39,8 @@ const updateTaskStatus = ($taskId, $status) => {
     });
 };
 
+
+
 const deleteTask = ($taskId) => {
     if (confirm('Are you sure you want to delete this task?')) {
         router.delete(route('tasks.destroy', $taskId), {
@@ -49,6 +52,16 @@ const deleteTask = ($taskId) => {
             },
         });
     }
+}
+
+const reopenTask = ($taskid) => {
+    router.put(route('tasks.reopen', $taskid), {
+        onSuccess: () => {
+
+        }, onError: () => {
+
+        }
+    });
 }
 
 </script>
@@ -96,13 +109,12 @@ const deleteTask = ($taskId) => {
                                         </svg></i>
                                     <span class="font-bold text-[#18181b] text-lg">Pendings Tasks</span>
                                 </div>
-                                <span
-                                    class="text-xs bg-[#e0e7ff] text-[#6366f1] px-3 py-1 rounded-full font-semibold">{{
-                                        $page.props.total }}
+                                <span class="text-xs bg-[#e0e7ff] text-[#6366f1] px-3 py-1 rounded-full font-semibold">
+                                    {{ $page.props.totalPending }}
                                     Pending</span>
                             </div>
                             <ul class="space-y-4">
-
+                                
                                 <li v-for="task in $page.props.tasks" :key="task.id">
                                     <div class="flex flex-col gap-4">
                                         <div class="flex items-center gap-4 justify-between">
@@ -110,12 +122,13 @@ const deleteTask = ($taskId) => {
 
                                                 <Checkbox
                                                     :style="{ borderColor: '#' + task.color, color: '#' + task.color }"
-                                                    class="focus:ring-gray-400 focus:ring-opacity-50" 
+                                                    class="focus:ring-gray-400 focus:ring-opacity-50"
                                                     v-model="task.is_completed" :checked="task.is_completed"
                                                     @change="updateTaskStatus(task.id, task.is_completed)" />
-                                        
+
                                                 <span v-if="task.status" class="font-medium text-[#18181b]"
-                                                    :class="{ 'line-through': task.status === 'completed' }">{{ task.title
+                                                    :class="{ 'line-through': task.status === 'completed' }">{{
+                                                        task.title
                                                     }}</span>
                                                 <span class="ml-2 text-xs bg-[#f59e42]/20 rounded px-2 py-0.5 font-bold"
                                                     :style="{ color: '#' + task.color }">{{
@@ -162,18 +175,25 @@ const deleteTask = ($taskId) => {
                             <div class="flex flex-col gap-2 pl-6 text-[#78716c]">
                                 <ul class="space-y-4">
                                     <li v-for="task in $page.props.tasksCompletedWeek" :key="task.id">
-                                        <div>{{task.completed_day}}: <span class="text-[#10b981]"><i data-fa-i2svg=""><svg
-                                                class="svg-inline--fa fa-circle-check" aria-hidden="true"
-                                                focusable="false" data-prefix="fas" data-icon="circle-check" role="img"
-                                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
-                                                data-fa-i2svg="">
-                                                <path fill="currentColor"
-                                                    d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z">
-                                                </path>
-                                            </svg></i></span> {{task.title}}</div>
+                                        <div>{{ task.completed_day }}: <span class="text-[#10b981]"><i
+                                                    data-fa-i2svg=""><svg class="svg-inline--fa fa-circle-check"
+                                                        aria-hidden="true" focusable="false" data-prefix="fas"
+                                                        data-icon="circle-check" role="img"
+                                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
+                                                        data-fa-i2svg="">
+                                                        <path fill="currentColor"
+                                                            d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z">
+                                                        </path>
+                                                    </svg></i></span> {{ task.title }}
+                                            <button @click="reopenTask(task.id)"
+                                                class="rounded-md ml-5 hover:bg-[#f6f9fc]">
+                                                <font-awesome-icon icon="rotate-left" class="text-[#78716c]" />
+                                            </button>
+                                        </div>
+
                                     </li>
                                 </ul>
-                                
+
                             </div>
                         </div>
                     </div>
@@ -191,37 +211,21 @@ const deleteTask = ($taskId) => {
                                             d="M160 80c0-26.5 21.5-48 48-48h32c26.5 0 48 21.5 48 48V432c0 26.5-21.5 48-48 48H208c-26.5 0-48-21.5-48-48V80zM0 272c0-26.5 21.5-48 48-48H80c26.5 0 48 21.5 48 48V432c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V272zM368 96h32c26.5 0 48 21.5 48 48V432c0 26.5-21.5 48-48 48H368c-26.5 0-48-21.5-48-48V144c0-26.5 21.5-48 48-48z">
                                         </path>
                                     </svg></i>
-                                <span class="font-bold text-[#18181b] text-lg">Progress</span>
+                                <span class="font-bold text-[#18181b] text-lg">All Tasks</span>
                             </div>
-                            <div class="space-y-4">
-                                <div>
-                                    <div class="flex justify-between mb-1">
-                                        <span class="font-medium text-[#18181b]">Study Laravel</span>
-                                        <span class="text-xs text-[#6366f1] font-bold">75% this month</span>
+                            <ul class="space-y-4">
+                                <li v-for="task in $page.props.alltasks" :key="task.id">
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span v-if="task.status" class="font-medium text-[#18181b]"
+                                                    :class="{ 'line-through': task.status === 'completed' }">{{
+                                                        task.title
+                                                    }}</span>
+                                            <span class="text-xs text-[#6366f1] font-bold">{{ task.updated_at }}</span>
+                                        </div>
                                     </div>
-                                    <div class="w-full h-3 bg-[#e0e7ff] rounded-lg overflow-hidden">
-                                        <div class="h-3 bg-[#6366f1] rounded-lg w-[75%] transition-all"></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="flex justify-between mb-1">
-                                        <span class="font-medium text-[#18181b]">Read finance blog</span>
-                                        <span class="text-xs text-[#6366f1] font-bold">50% this month</span>
-                                    </div>
-                                    <div class="w-full h-3 bg-[#e0e7ff] rounded-lg overflow-hidden">
-                                        <div class="h-3 bg-[#6366f1] rounded-lg w-[50%] transition-all"></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="flex justify-between mb-1">
-                                        <span class="font-medium text-[#18181b]">Walk 30 min</span>
-                                        <span class="text-xs text-[#6366f1] font-bold">60% this month</span>
-                                    </div>
-                                    <div class="w-full h-3 bg-[#e0e7ff] rounded-lg overflow-hidden">
-                                        <div class="h-3 bg-[#6366f1] rounded-lg w-[60%] transition-all"></div>
-                                    </div>
-                                </div>
-                            </div>
+                                </li>
+                            </ul>
                         </div>
                         <!-- Monthly progress summary -->
                         <div id="monthly-progress-block" class="bg-[#f1f5f9] rounded-xl p-6 shadow-sm">
@@ -238,8 +242,12 @@ const deleteTask = ($taskId) => {
                             </div>
                             <div class="flex items-end gap-4 mt-4 px-1">
                                 <div class="flex flex-col items-center">
-                                    <div class="h-20 w-4 bg-[#6366f1] rounded-t-lg"></div>
-                                    <span class="text-xs font-bold mt-2 text-[#6366f1]">15 Tasks</span>
+                                    <div class="h-24 w-4 bg-[#818cf8] rounded-t-lg">
+                                        <div class="bg-[#6366f1] rounded-t-lg"
+                                            :style="{ height: `${$page.props.total}%` }"></div>
+                                    </div>
+                                    <span class="text-xs font-bold mt-2 text-[#6366f1]">{{ $page.props.totalCompleted }}
+                                        Tasks </span>
                                 </div>
                                 <div class="flex flex-col items-center">
                                     <div class="h-12 w-4 bg-[#a5b4fc] rounded-t-lg"></div>

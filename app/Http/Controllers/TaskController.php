@@ -13,7 +13,6 @@ class TaskController extends Controller
     public function index()
     {
         $task = Task::where('user_id', auth()->id())
-            ->where('status', 'pending')
             ->orderBy('due_date', 'asc')
             ->get()
             ->map(function ($task) {
@@ -26,30 +25,36 @@ class TaskController extends Controller
                 $task->color = $priorityColors[$task->priority] ?? '000000';
                 return $task;
             });
-        $total = $task->count();
-        $tasksCompletedWeek = $this->tasksCompletedAtThisWeek();
 
-        return inertia('Tasks', [
-            'tasks' => $task,
-            'total' => $total,
-            'tasksCompletedWeek' => $tasksCompletedWeek,
-        ]);
-    }
 
-    public function tasksCompletedAtThisWeek()
-    {
-        $tasksCompletedWeek = Task::where('user_id', auth()->id())
-            ->where('status', 'completed')
+        $taskPending = $task->where('status', 'pending');
+        $totalPending = $taskPending->count();
+        $tasksCompletedWeek = $task->where('status', 'completed')
             ->whereBetween('updated_at', [now()->startOfWeek(), now()->endOfWeek()])
-            ->get()
             ->map(function ($task) {
                 $task->completed_day = $task->updated_at->dayName;
                 return $task;
             });
+        $tasksCompletedMonth = $task->where('status', 'completed')
+            ->whereBetween('updated_at', [now()->startOfMonth(), now()->endOfMonth()]);
 
+        $totalCompletedMonth = $tasksCompletedMonth->count();
+        $total = $task->count();
+        $totalPercentage = 0;
+        if ($total > 0) {
+            $totalPercentage = round(($totalCompletedMonth / $total) * 100);
+        } else {
+            $totalPercentage = 0;
+        }
 
-
-        return $tasksCompletedWeek;
+        return inertia('Tasks', [
+            'tasks' => $taskPending,
+            'alltasks' => $task,
+            'totalPending' => $totalPending,
+            'tasksCompletedWeek' => $tasksCompletedWeek,
+            'totalCompleted' => $totalCompletedMonth,
+            'total' => $totalPercentage,
+        ]);
     }
 
     public function store(Request $request)
@@ -114,6 +119,19 @@ class TaskController extends Controller
 
         return redirect()->back()
             ->with('success', 'Task status updated successfully.');
+    }
+
+    public function reopen(Task $task)
+    {
+        $task = Task::findorFail($task->id);
+        if (!$task) {
+            return redirect()->route('tasks.index')
+                ->with('error', 'Task not found.');
+        }
+        $task->status = 'pending';
+        $task->save();
+        return redirect()->route('tasks.index')
+            ->with('success', 'Task reopened successfully.');
     }
 
     public function destroy(Task $task)

@@ -32,6 +32,8 @@ Route::middleware([CheckUserAccess::class])->group(function () {
         ->name('tasks.update');
     Route::put('/tasks/{task}/status', [App\Http\Controllers\TaskController::class, 'updateStatus'])
         ->name('tasks.updateStatus');
+    Route::put('/tasks/{task}/reopen', [App\Http\Controllers\TaskController::class, 'reopen'])
+        ->name('tasks.reopen');
     Route::delete('/tasks/destroy/{task}', [App\Http\Controllers\TaskController::class, 'destroy'])
         ->name('tasks.destroy');
 });
