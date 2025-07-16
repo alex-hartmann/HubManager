@@ -23,6 +23,7 @@ class TaskController extends Controller
                     'high'   => 'f59e42',
                 ];
                 $task->color = $priorityColors[$task->priority] ?? '000000';
+                $task->completed_at_formatted = $task->updated_at->format('d-m-Y H:i');
                 return $task;
             });
 
