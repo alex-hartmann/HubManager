@@ -52,6 +52,7 @@ const logout = () => {
                         <Link :href="route('dashboard')" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Dashboard</Link>
                         <Link :href="route('habits.index')" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Habits</Link>
                         <Link :href="route('tasks.index')" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Tasks</Link>
+                        <Link :href="route('finances.index')" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Finances</Link>
                         <form method="POST" @submit.prevent="logout">
                             <button type="submit" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Sair</button>
                         </form>

@@ -36,6 +36,8 @@ Route::middleware([CheckUserAccess::class])->group(function () {
         ->name('tasks.reopen');
     Route::delete('/tasks/destroy/{task}', [App\Http\Controllers\TaskController::class, 'destroy'])
         ->name('tasks.destroy');
+    Route::get('/finances', [App\Http\Controllers\FinancesController::class, 'index'])
+        ->name('finances.index');
 });
 
 
